@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced Attendance System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 500px;
+      overflow: hidden;
+      animation: containerAppear 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      z-index: 2;
+    }
+    
+    @keyframes containerAppear {
+      0% { transform: translateY(50px) scale(0.9); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    
+    .floating-icons {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .floating-icon {
+      position: absolute;
+      font-size: 24px;
+      opacity: 0.1;
+      color: white;
+      animation: float 15s linear infinite;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(100vh) rotate(0deg); }
+      100% { transform: translateY(-100px) rotate(360deg); }
+    }
+    
+    .header {
+      background: linear-gradient(90deg, #4776E6 0%, #8E54E9 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+    
+    .logo {
+      font-size: 40px;
+      margin-right: 15px;
+      animation: pulse 2s infinite;
+    }
+    
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+      transform: rotate(30deg);
+      animation: shine 8s infinite linear;
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(30deg); }
+      100% { transform: translateX(100%) rotate(30deg); }
+    }
+    
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+    
+    .header p {
+      font-size: 16px;
+      opacity: 0.9;
+      position: relative;
+    }
+    
+    .form-container {
+      padding: 40px 30px 30px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .input-group {
+      margin-bottom: 25px;
+      position: relative;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #333;
+      font-size: 16px;
+      padding-left: 5px;
+      transform-origin: left;
+      transition: all 0.3s ease;
+    }
+    
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 18px 20px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: #f9f9f9;
+      appearance: none;
+    }
+    
+    .input-group input:focus, .input-group select:focus {
+      outline: none;
+      border-color: #4776E6;
+      box-shadow: 0 0 0 3px rgba(71, 118, 230, 0.2);
+      background: white;
+      transform: translateY(-2px);
+    }
+    
+    .input-group input:focus + label {
+      color: #4776E6;
+      transform: translateY(-5px) scale(0.95);
+    }
+    
+    .input-group input::placeholder {
+      color: #bbb;
+    }
+    
+    .input-icon {
+      position: absolute;
+      right: 20px;
+      top: 50px;
+      color: #4776E6;
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+    
+    .input-group input:focus ~ .input-icon, .input-group select:focus ~ .input-icon {
+      transform: scale(1.2) rotate(10deg);
+      color: #8E54E9;
+    }
+    
+    button {
+      width: 100%;
+      padding: 20px;
+      background: linear-gradient(90deg, #4776E6 0%, #8E54E9 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+    
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+    
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    button.teacher-btn {
+      background: linear-gradient(90deg, #FF512F 0%, #DD2476 100%);
+    }
+    
+    button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+    
+    button:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+    
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      20% {
+        transform: scale(50, 50);
+        opacity: 0.3;
+      }
+      100% {
+        transform: scale(100, 100);
+        opacity: 0;
+      }
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 18px 25px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateX(100px);
+      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      z-index: 1000;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .notification.success {
+      background: linear-gradient(90deg, #00b09b 0%, #96c93d 100%);
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    .notification.error {
+      background: linear-gradient(90deg, #ff416c 0%, #ff4b2b 100%);
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    .confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1001;
+      opacity: 0;
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 25px;
+      font-size: 14px;
+      color: #777;
+      border-top: 1px solid #eee;
+      background: #f9f9f9;
+    }
+    
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
+      50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(71, 118, 230, 0.4); }
+      100% { transform: scale(1); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
+    }
+    
+    .sound-control {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 100;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .sound-control:hover {
+      transform: scale(1.1);
+    }
+    
+    .sound-control i {
+      font-size: 24px;
+      color: white;
+    }
+    
+    .flex-row {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .flex-row .input-group {
+      flex: 1;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+      transform: scale(0.9);
+      opacity: 0;
+      animation: modalAppear 0.3s forwards;
+    }
+    
+    @keyframes modalAppear {
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    .modal-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .modal-header h2 {
+      color: #4776E6;
+      margin-bottom: 10px;
+    }
+    
+    .modal-input {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-input:focus {
+      outline: none;
+      border-color: #4776E6;
+      box-shadow: 0 0 0 3px rgba(71, 118, 230, 0.2);
+    }
+    
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .modal-btn {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-btn.primary {
+      background: linear-gradient(90deg, #4776E6 0%, #8E54E9 100%);
+      color: white;
+    }
+    
+    .modal-btn.secondary {
+      background: #f1f1f1;
+      color: #333;
+    }
+    
+    .attempts-warning {
+      color: #ff416c;
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+      display: none;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        border-radius: 15px;
+      }
+      
+      .header {
+        padding: 25px;
+      }
+      
+      .header h1 {
+        font-size: 28px;
+      }
+      
+      .form-container {
+        padding: 35px 20px 25px;
+      }
+      
+      button {
+        padding: 18px;
+      }
+      
+      .flex-row {
+        flex-direction: column;
+        gap: 25px;
+      }
+      
+      .modal-content {
+        padding: 20px;
+      }
+      
+      .modal-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-icons" id="floating-icons"></div>
+  
+  <div class="container">
+    <div class="header">
+      <div class="logo-container">
+        <i class="fas fa-book-open logo"></i>
+        <div class="header-text">
+          <h1>Student Attendance</h1>
+          <p>Fill in your details to mark attendance</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-container">
+      <form id="attendanceForm">
+        <div class="input-group">
+          <input type="text" id="name" placeholder="Enter your full name" required>
+          <label for="name"><i class="fas fa-user"></i> Full Name</label>
+          <div class="input-icon"><i class="fas fa-user-check"></i></div>
+        </div>
+        
+        <div class="input-group">
+          <input type="text" id="roll" placeholder="Enter your roll number" required>
+          <label for="roll"><i class="fas fa-id-card"></i> Roll Number</label>
+          <div class="input-icon"><i class="fas fa-hashtag"></i></div>
+        </div>
+        
+        <div class="flex-row">
+          <div class="input-group">
+            <select id="class" required>
+              <option value="">Select Class</option>
+              <option value="11">Class 11</option>
+              <option value="12">Class 12</option>
+            </select>
+            <label for="class"><i class="fas fa-graduation-cap"></i> Class</label>
+            <div class="input-icon"><i class="fas fa-school"></i></div>
+          </div>
+          
+          <div class="input-group">
+            <select id="section" required>
+              <option value="">Select Section</option>
+              <option value="A">Section A</option>
+              <option value="B">Section B</option>
+              <option value="C">Section C</option>
+              <option value="D">Section D</option>
+              <option value="E">Section E</option>
+              <option value="F">Section F</option>
+              <option value="G">Section G</option>
+              <option value="H">Section H</option>
+            </select>
+            <label for="section"><i class="fas fa-chalkboard"></i> Section</label>
+            <div class="input-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+          </div>
+        </div>
+        
+        <!-- Added Division Field -->
+        <div class="input-group">
+          <select id="division" required>
+            <option value="">Select Division</option>
+            <option value="Science">Science</option>
+            <option value="Commerce">Commerce</option>
+            <option value="Arts">Arts</option>
+          </select>
+          <label for="division"><i class="fas fa-users"></i> Division</label>
+          <div class="input-icon"><i class="fas fa-users"></i></div>
+        </div>
+        
+        <div class="input-group">
+          <select id="subject" required>
+            <option value="">Select Subject</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="Biology">Biology</option>
+            <option value="English">English</option>
+            <option value="SMS">SMS</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Accountancy">Accountancy</option>
+            <option value="Business Studies">Business Studies</option>
+            <option value="Economics">Economics</option>
+            <option value="History">History</option>
+            <option value="Political Science">Political Science</option>
+            <option value="Geography">Geography</option>
+          </select>
+          <label for="subject"><i class="fas fa-book"></i> Subject</label>
+          <div class="input-icon"><i class="fas fa-book-open"></i></div>
+        </div>
+        
+        <button type="submit" id="submitBtn" class="pulse">
+          <i class="fas fa-paper-plane"></i> Mark Attendance
+        </button>
+        
+        <button type="button" id="teacherBtn" class="teacher-btn">
+          <i class="fas fa-chalkboard-teacher"></i> Teacher Portal
+        </button>
+      </form>
+    </div>
+    
+    <div class="footer">
+      <p><i class="fas fa-lock"></i> Secure & Reliable • © 2025 Student Attendance System</p>
+    </div>
+  </div>
+  
+  <div class="notification" id="notification">
+    <i class="fas fa-check-circle"></i>
+    <span id="notification-text"></span>
+  </div>
+  
+  <div class="sound-control" id="soundControl">
+    <i class="fas fa-volume-up"></i>
+  </div>
+  
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-lock"></i> Teacher Portal</h2>
+        <p>Enter credentials to access attendance data</p>
+      </div>
+      <input type="text" id="username" class="modal-input" placeholder="Username" autocomplete="off">
+      <input type="password" id="password" class="modal-input" placeholder="Password" autocomplete="off">
+      <div class="attempts-warning" id="attemptsWarning">
+        Incorrect credentials. Attempts remaining: <span id="attemptsCount">3</span>
+      </div>
+      <div class="modal-buttons">
+        <button class="modal-btn secondary" id="cancelBtn">Cancel</button>
+        <button class="modal-btn primary" id="loginBtn">Login</button>
+      </div>
+    </div>
+  </div>
+  
+  <canvas class="confetti" id="confetti"></canvas>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvBJ4oiFIrkwQIgB65vhYG1s_sU407DWY",
+      authDomain: "prajyotgond.firebaseapp.com",
+      projectId: "prajyotgond",
+      storageBucket: "prajyotgond.appspot.com",
+      messagingSenderId: "747968445282",
+      appId: "1:747968445282:web:f7deffceefadd8eeb80a3b",
+      measurementId: "G-Y5TQTVX2EK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Create floating icons
+    function createFloatingIcons() {
+      const iconsContainer = document.getElementById('floating-icons');
+      const icons = ['fas fa-book', 'fas fa-pencil-alt', 'fas fa-graduation-cap', 'fas fa-user-graduate', 'fas fa-clock'];
+      
+      for (let i = 0; i < 20; i++) {
+        const icon = document.createElement('i');
+        icon.className = icons[Math.floor(Math.random() * icons.length)] + ' floating-icon';
+        icon.style.left = Math.random() * 100 + 'vw';
+        icon.style.animationDelay = Math.random() * 15 + 's';
+        icon.style.fontSize = (Math.random() * 20 + 15) + 'px';
+        iconsContainer.appendChild(icon);
+      }
+    }
+
+    // Audio context for generating sounds
+    let audioContext;
+    let isSoundEnabled = true;
+
+    // Initialize audio context
+    function initAudio() {
+      try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        console.log('Web Audio API is not supported in this browser');
+        isSoundEnabled = false;
+        document.getElementById('soundControl').style.display = 'none';
+      }
+    }
+
+    // Create pleasant sound function
+    function createPleasantSound(frequency, type, duration, volume = 0.3) {
+      if (!isSoundEnabled || !audioContext) return;
+      
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.type = type;
+      oscillator.frequency.value = frequency;
+      gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + duration);
+    }
+
+    // Play specific pleasant sounds
+    function playClickSound() {
+      createPleasantSound(600, 'sine', 0.1, 0.2);
+    }
+    
+    function playSuccessSound() {
+      createPleasantSound(523.25, 'sine', 0.15, 0.2); // C5
+      setTimeout(() => createPleasantSound(659.25, 'sine', 0.15, 0.2), 150); // E5
+      setTimeout(() => createPleasantSound(783.99, 'sine', 0.3, 0.2), 300); // G5
+    }
+    
+    function playErrorSound() {
+      createPleasantSound(349.23, 'sine', 0.3, 0.2); // F4
+      setTimeout(() => createPleasantSound(293.66, 'sine', 0.3, 0.2), 100); // D4
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      createFloatingIcons();
+      initAudio();
+      
+      const form = document.getElementById("attendanceForm");
+      const submitBtn = document.getElementById("submitBtn");
+      const teacherBtn = document.getElementById("teacherBtn");
+      const notification = document.getElementById("notification");
+      const notificationText = document.getElementById("notification-text");
+      const confettiCanvas = document.getElementById("confetti");
+      const soundControl = document.getElementById("soundControl");
+      const loginModal = document.getElementById("loginModal");
+      const usernameInput = document.getElementById("username");
+      const passwordInput = document.getElementById("password");
+      const loginBtn = document.getElementById("loginBtn");
+      const cancelBtn = document.getElementById("cancelBtn");
+      const attemptsWarning = document.getElementById("attemptsWarning");
+      const attemptsCount = document.getElementById("attemptsCount");
+      
+      let loginAttempts = 9;
+      const correctUsername = "spmandal";
+      const correctPassword = "prajyot7048";
+      
+      // Sound control toggle
+      soundControl.addEventListener('click', () => {
+        isSoundEnabled = !isSoundEnabled;
+        soundControl.innerHTML = isSoundEnabled ? 
+          '<i class="fas fa-volume-up"></i>' : 
+          '<i class="fas fa-volume-mute"></i>';
+        
+        if (isSoundEnabled) playClickSound();
+      });
+      
+      // Teacher portal button
+      teacherBtn.addEventListener('click', () => {
+        playClickSound();
+        loginModal.style.display = 'flex';
+        loginAttempts = 9;
+        attemptsWarning.style.display = 'none';
+        usernameInput.value = '';
+        passwordInput.value = '';
+      });
+      
+      // Cancel login
+      cancelBtn.addEventListener('click', () => {
+        playClickSound();
+        loginModal.style.display = 'none';
+      });
+      
+      // Login functionality
+      loginBtn.addEventListener('click', () => {
+        playClickSound();
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+        
+        if (username === correctUsername && password === correctPassword) {
+          // Successful login
+          playSuccessSound();
+          showNotification("Login successful! Redirecting...", true);
+          setTimeout(() => {
+            window.open("https://prajyot9157.github.io/Admin/", "_blank");
+            loginModal.style.display = 'none';
+          }, 1500);
+        } else {
+          // Failed login
+          loginAttempts--;
+          playErrorSound();
+          
+          if (loginAttempts > 0) {
+            attemptsCount.textContent = loginAttempts;
+            attemptsWarning.style.display = 'block';
+            // Shake animation for wrong credentials
+            loginModal.querySelector('.modal-content').style.animation = 'none';
+            setTimeout(() => {
+              loginModal.querySelector('.modal-content').style.animation = 'shake 0.5s, modalAppear 0.3s forwards';
+            }, 10);
+          } else {
+            // No attempts left
+            showNotification("Access denied. Too many failed attempts.", false);
+            loginModal.style.display = 'none';
+            loginAttempts = 3; // Reset for next time
+          }
+        }
+      });
+      
+      // Allow pressing Enter to login
+      passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          loginBtn.click();
+        }
+      });
+      
+      // Function to show notification
+      function showNotification(message, isSuccess) {
+        notificationText.textContent = message;
+        notification.className = isSuccess ? 'notification success' : 'notification error';
+        
+        if (isSuccess) {
+          playSuccessSound();
+          triggerConfetti();
+        } else {
+          playErrorSound();
+        }
+        
+        setTimeout(() => {
+          notification.className = 'notification';
+        }, 3000);
+      }
+      
+      // Confetti animation
+      function triggerConfetti() {
+        const canvas = confettiCanvas;
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const confetti = [];
+        const confettiCount = 200;
+        const gravity = 0.5;
+        const terminalVelocity = 5;
+        const drag = 0.075;
+        const colors = [
+          { front: '#4776E6', back: '#8E54E9' },
+          { front: '#00b09b', back: '#96c93d' },
+          { front: '#ff416c', back: '#ff4b2b' },
+          { front: '#FFD700', back: '#FFA500' },
+          { front: '#8A2BE2', back: '#4B0082' }
+        ];
+        
+        // Initialize confetti
+        for (let i = 0; i < confettiCount; i++) {
+          confetti.push({
+            color: colors[Math.floor(Math.random() * colors.length)],
+            dimensions: {
+              x: Math.random() * 10 + 5,
+              y: Math.random() * 10 + 5
+            },
+            position: {
+              x: Math.random() * canvas.width,
+              y: -10
+            },
+            rotation: Math.random() * 2 * Math.PI,
+            scale: {
+              x: 1,
+              y: 1
+            },
+            velocity: {
+              x: Math.random() * 10 - 5,
+              y: Math.random() * 5 + 5
+            }
+          });
+        }
+        
+        canvas.style.opacity = '1';
+        
+        // Animation loop
+        let animationFrame;
+        let progress = 0;
+        
+        function update() {
+          progress++;
+          
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+          confetti.forEach((confetto, index) => {
+            let width = confetto.dimensions.x * confetto.scale.x;
+            let height = confetto.dimensions.y * confetto.scale.y;
+            
+            // Apply forces
+            confetto.velocity.x -= confetto.velocity.x * drag;
+            confetto.velocity.y = Math.min(confetto.velocity.y + gravity, terminalVelocity);
+            confetto.velocity.y -= confetto.velocity.y * drag;
+            
+            // Update position
+            confetto.position.x += confetto.velocity.x;
+            confetto.position.y += confetto.velocity.y;
+            
+            // Spin confetto
+            confetto.rotation += confetto.velocity.x * 0.05;
+            
+            // Draw confetti
+            ctx.save();
+            ctx.translate(confetto.position.x, confetto.position.y);
+            ctx.rotate(confetto.rotation);
+            
+            ctx.fillStyle = progress % 2 ? confetto.color.front : confetto.color.back;
+            ctx.fillRect(-width / 2, -height / 2, width, height);
+            
+            ctx.restore();
+            
+            // Remove confetti if out of screen
+            if (confetto.position.y >= canvas.height) {
+              confetti.splice(index, 1);
+            }
+          });
+          
+          if (confetti.length > 0 && progress < 200) {
+            animationFrame = requestAnimationFrame(update);
+          } else {
+            canvas.style.opacity = '0';
+            cancelAnimationFrame(animationFrame);
+          }
+        }
+        
+        update();
+      }
+      
+      // Add click sound to all inputs and button
+      const inputs = document.querySelectorAll('input, select');
+      inputs.forEach(input => {
+        input.addEventListener('focus', () => {
+          playClickSound();
+        });
+      });
+      
+      submitBtn.addEventListener('mousedown', () => {
+        playClickSound();
+      });
+      
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        // Get form values
+        const name = document.getElementById("name").value.trim();
+        const roll = document.getElementById("roll").value.trim();
+        const studentClass = document.getElementById("class").value;
+        const section = document.getElementById("section").value;
+        const division = document.getElementById("division").value; // Added division
+        const subject = document.getElementById("subject").value;
+        
+        // Validate inputs
+        if (!name || !roll || !studentClass || !section || !division || !subject) {
+          showNotification("Please fill in all fields", false);
+          return;
+        }
+        
+        // Change button text to show loading state
+        submitBtn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Processing...";
+        submitBtn.disabled = true;
+        
+        try {
+          // Save to Firestore - Now includes division
+          await addDoc(collection(db, "attendance"), {
+            name: name,
+            roll: roll,
+            class: studentClass,
+            section: section,
+            division: division, // Added division field
+            subject: subject,
+            timestamp: new Date()
+          });
+          
+          // Show success message
+          showNotification("Attendance marked successfully!", true);
+          
+          // Reset form
+          form.reset();
+        } catch (error) {
+          console.error("Error saving data: ", error);
+          showNotification("Error saving data. Please try again.", false);
+        } finally {
+          // Reset button state
+          submitBtn.innerHTML = "<i class='fas fa-paper-plane'></i> Mark Attendance";
+          submitBtn.disabled = false;
+        }
+      });
+    });
+
+    // Add shake animation for wrong credentials
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+        20%, 40%, 60%, 80% { transform: translateX(10px); }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>dy>
+</html>
